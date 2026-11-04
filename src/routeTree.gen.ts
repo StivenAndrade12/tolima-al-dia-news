@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CategoryRouteImport } from './routes/$category'
+import { Route as BuscarRouteImport } from './routes/buscar'
+import { Route as NoticiaSlugRouteImport } from './routes/noticia.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoryRoute = CategoryRouteImport.update({
+  id: '/$category',
+  path: '/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuscarRoute = BuscarRouteImport.update({
+  id: '/buscar',
+  path: '/buscar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticiaSlugRoute = NoticiaSlugRouteImport.update({
+  id: '/noticia/$slug',
+  path: '/noticia/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$category': typeof CategoryRoute
+  '/buscar': typeof BuscarRoute
+  '/noticia/$slug': typeof NoticiaSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$category': typeof CategoryRoute
+  '/buscar': typeof BuscarRoute
+  '/noticia/$slug': typeof NoticiaSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$category': typeof CategoryRoute
+  '/buscar': typeof BuscarRoute
+  '/noticia/$slug': typeof NoticiaSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/$category' | '/buscar' | '/noticia/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/$category' | '/buscar' | '/noticia/$slug'
+  id: '__root__' | '/' | '/$category' | '/buscar' | '/noticia/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CategoryRoute: typeof CategoryRoute
+  BuscarRoute: typeof BuscarRoute
+  NoticiaSlugRoute: typeof NoticiaSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$category': {
+      id: '/$category'
+      path: '/$category'
+      fullPath: '/$category'
+      preLoaderRoute: typeof CategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buscar': {
+      id: '/buscar'
+      path: '/buscar'
+      fullPath: '/buscar'
+      preLoaderRoute: typeof BuscarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/noticia/$slug': {
+      id: '/noticia/$slug'
+      path: '/noticia/$slug'
+      fullPath: '/noticia/$slug'
+      preLoaderRoute: typeof NoticiaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CategoryRoute: CategoryRoute,
+  BuscarRoute: BuscarRoute,
+  NoticiaSlugRoute: NoticiaSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
