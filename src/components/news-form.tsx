@@ -146,10 +146,12 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
               setBusy(true);
               try {
                 onChange(await uploadFile(f, "image"));
-              } catch {
-                toast.error("No se pudo subir la imagen.");
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "No se pudo subir la imagen.");
+              } finally {
+                setBusy(false);
+                e.target.value = "";
               }
-              setBusy(false);
             }}
           />
         </label>
@@ -335,8 +337,10 @@ export function NewsForm({ initial }: { initial?: News }) {
                     try {
                       const urls = await Promise.all(files.map((file) => uploadFile(file, "image")));
                       setGallery((g) => [...g, ...urls]);
-                    } catch {
-                      toast.error("No se pudo subir alguna imagen.");
+                    } catch (error) {
+                      toast.error(error instanceof Error ? error.message : "No se pudo subir alguna imagen.");
+                    } finally {
+                      e.target.value = "";
                     }
                   }}
                 />
@@ -384,10 +388,16 @@ export function NewsForm({ initial }: { initial?: News }) {
                     setUploadingVideo(true);
                     try {
                       setVideo(await uploadFile(f, "video"));
-                    } catch {
-                      toast.error("No se pudo subir el video. Verifica el formato y que pese máximo 45 MB.");
+                    } catch (error) {
+                      toast.error(
+                        error instanceof Error
+                          ? error.message
+                          : "No se pudo subir el video. Verifica el formato y el tamaño máximo de 45 MB.",
+                      );
+                    } finally {
+                      setUploadingVideo(false);
+                      e.target.value = "";
                     }
-                    setUploadingVideo(false);
                   }}
                 />
               </label>
