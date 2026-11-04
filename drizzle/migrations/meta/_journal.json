@@ -8,6 +8,13 @@
       "when": 1793815535509,
       "tag": "0000_news_portal",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793815554990,
+      "tag": "0001_media_policies",
+      "breakpoints": true
     }
   ]
 }
