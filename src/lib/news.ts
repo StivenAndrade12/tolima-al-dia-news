@@ -135,7 +135,7 @@ export function sanitizeNewsHtml(html: string): string {
 
     if (!ALLOWED_NEWS_TAGS.has(tag)) continue;
     if (closing) {
-      if (!VOID_NEWS_TAGS.has(tag)) output.push(`</${tag}>`);
+      if (!VOID_NEWS_TAGS.has(tag)) output.push(\`</\${tag}>\`);
       continue;
     }
 
@@ -144,14 +144,14 @@ export function sanitizeNewsHtml(html: string): string {
       const href = (hrefMatch?.[1] ?? hrefMatch?.[2] ?? hrefMatch?.[3] ?? "").trim();
       if (/^https?:\\/\\//i.test(href)) {
         const safeHref = href.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-        output.push(`<a href="${safeHref}" target="_blank" rel="noopener noreferrer">`);
+        output.push(\`<a href="\${safeHref}" target="_blank" rel="noopener noreferrer">\`);
       } else {
         output.push("<a>");
       }
       continue;
     }
 
-    output.push(VOID_NEWS_TAGS.has(tag) ? `<${tag}>` : `<${tag}>`);
+    output.push(\`<\${tag}>\`);
   }
 
   return output.join("");
