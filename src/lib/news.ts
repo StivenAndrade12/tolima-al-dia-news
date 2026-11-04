@@ -106,7 +106,7 @@ const BLOCKED_NEWS_TAGS = new Set([
  * Only basic editorial formatting and safe HTTP(S) links are retained.
  */
 export function sanitizeNewsHtml(html: string): string {
-  const tokens = html.match(/<!--[\\s\\S]*?-->|<![^>]*>|<[^>]*>|[^<]+|</g) ?? [];
+  const tokens = html.match(/<!--[\s\S]*?-->|<![^>]*>|<[^>]*>|[^<]+|</g) ?? [];
   const output: string[] = [];
   let blockedTag: string | null = null;
 
@@ -116,7 +116,7 @@ export function sanitizeNewsHtml(html: string): string {
       continue;
     }
 
-    const match = token.match(/^<\\s*(\\/?)\\s*([a-zA-Z][a-zA-Z0-9-]*)\\b([^>]*)>$/);
+    const match = token.match(/^<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9-]*)\b([^>]*)>$/);
     if (!match) continue;
 
     const closing = match[1] === "/";
@@ -135,23 +135,23 @@ export function sanitizeNewsHtml(html: string): string {
 
     if (!ALLOWED_NEWS_TAGS.has(tag)) continue;
     if (closing) {
-      if (!VOID_NEWS_TAGS.has(tag)) output.push(\`</\${tag}>\`);
+      if (!VOID_NEWS_TAGS.has(tag)) output.push("</" + tag + ">");
       continue;
     }
 
     if (tag === "a") {
-      const hrefMatch = attributes.match(/\\bhref\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/i);
+      const hrefMatch = attributes.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
       const href = (hrefMatch?.[1] ?? hrefMatch?.[2] ?? hrefMatch?.[3] ?? "").trim();
-      if (/^https?:\\/\\//i.test(href)) {
+      if (/^https?:\/\//i.test(href)) {
         const safeHref = href.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-        output.push(\`<a href="\${safeHref}" target="_blank" rel="noopener noreferrer">\`);
+        output.push('<a href="' + safeHref + '" target="_blank" rel="noopener noreferrer">');
       } else {
         output.push("<a>");
       }
       continue;
     }
 
-    output.push(\`<\${tag}>\`);
+    output.push("<" + tag + ">");
   }
 
   return output.join("");
