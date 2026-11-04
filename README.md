@@ -92,3 +92,24 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+
+## Variables de entorno
+
+Copia `.env.example` como `.env` y completa los valores del proyecto Supabase. Usa únicamente la URL y la clave publicable. Nunca incluyas una clave `service_role` ni claves secretas en el frontend o en Git.
+
+## Seguridad antes de producción
+
+- El panel solo permite iniciar sesión; las cuentas administrativas deben crearse/provisionarse desde Supabase.
+- Verifica que el usuario autorizado tenga el rol `admin` en `public.user_roles`.
+- Revisa y aplica `drizzle/migrations/0003_disable_public_admin_signup.sql` desde el SQL Editor de Supabase después de confirmar que el administrador actual ya existe. Esta migración elimina el trigger que promovía automáticamente al primer usuario registrado; no borra roles existentes.
+- Desactiva los registros públicos en Authentication → Settings de Supabase.
+- Mantén habilitadas las políticas RLS de `news`, `user_roles` y `storage.objects`. Prueba con una sesión anónima que no pueda insertar, editar ni eliminar noticias ni subir archivos.
+- El contenido HTML de las noticias se filtra mediante una lista permitida antes de mostrarse públicamente.
+- Aplica también `drizzle/migrations/0004_restrict_media_listing.sql`: retira la lectura anónima/listado del bucket privado `media`; las noticias siguen mostrando sus archivos mediante enlaces firmados. Comprueba el acceso desde una ventana privada después de aplicar ambas migraciones.
+- Define `VITE_SITE_URL` con el dominio final para activar las URL canónicas de cada noticia.
+- Las cargas están limitadas a imágenes de 8 MB y videos de 45 MB. Los videos grandes deben publicarse mediante un enlace externo.
+
+## Despliegue
+
+La aplicación usa TanStack Start con Nitro y configuración de Cloudflare. Antes de publicar, valida localmente `npm ci`, `npm run lint` y `npm run build`. Configura `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` y los identificadores de proyecto requeridos como variables del entorno de despliegue.

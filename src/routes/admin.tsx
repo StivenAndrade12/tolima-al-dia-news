@@ -89,7 +89,6 @@ function AdminLayout() {
 }
 
 function LoginScreen() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -97,18 +96,8 @@ function LoginScreen() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) toast.error("Correo o contraseña incorrectos.");
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
-      });
-      if (error) toast.error(error.message);
-      else if (!data.session) toast.success("Revisa tu correo para confirmar la cuenta.");
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) toast.error("Correo o contraseña incorrectos.");
     setLoading(false);
   };
 
@@ -121,9 +110,7 @@ function LoginScreen() {
           </span>
           <h1 className="mt-4 text-2xl font-black">Panel de noticias</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "login"
-              ? "Ingresa con tu correo y contraseña"
-              : "Crea la cuenta de administración"}
+            Ingresa con tu cuenta de administrador
           </p>
         </div>
         <div className="space-y-4">
@@ -133,6 +120,7 @@ function LoginScreen() {
               id="email"
               type="email"
               required
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -143,22 +131,15 @@ function LoginScreen() {
               id="password"
               type="password"
               required
-              minLength={6}
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Un momento…" : mode === "login" ? "Ingresar" : "Crear cuenta"}
+            {loading ? "Un momento…" : "Ingresar"}
           </Button>
         </div>
-        <button
-          type="button"
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-6 w-full text-center text-xs text-muted-foreground hover:text-primary"
-        >
-          {mode === "login" ? "¿Primera vez? Crear cuenta" : "Ya tengo cuenta"}
-        </button>
       </form>
     </div>
   );
