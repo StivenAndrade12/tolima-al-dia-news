@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { getNewsBySlug } from "@/lib/news.functions";
+import { sanitizeNewsHtml } from "@/lib/news";
 import { categoryLabel, formatDate, toVideoEmbed } from "@/lib/news";
 import { NewsCard } from "@/components/news-card";
 import {
@@ -109,7 +110,7 @@ function Article() {
       )}
 
       <div className="mx-auto mt-10 max-w-3xl">
-        <div className="article-body" dangerouslySetInnerHTML={{ __html: n.content }} />
+        <div className="article-body" dangerouslySetInnerHTML={{ __html: sanitizeNewsHtml(n.content) }} />
 
         {video && (
           <section className="mt-10">
