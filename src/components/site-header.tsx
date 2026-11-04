@@ -51,7 +51,7 @@ export function SiteHeader() {
     <>
       <div className="bg-ink text-ink-foreground">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-xs">
-          <span className="capitalize opacity-80">{today}</span>
+          <span className="opacity-80">{today.charAt(0).toUpperCase() + today.slice(1)}</span>
           <RadioButton />
         </div>
       </div>
