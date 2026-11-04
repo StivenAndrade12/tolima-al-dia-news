@@ -41,5 +41,14 @@ function CategoryPage() {
   const { page } = Route.useLoaderDeps();
   const { data } = useSuspenseQuery(catQuery(category, page));
   const c = CATEGORIES.find((x) => x.slug === category)!;
-  return <NewsListing items={data.items} page={data.page} pages={data.pages} title={c.label} subtitle={c.desc} showFeatured />;
+  return (
+    <NewsListing
+      items={data.items}
+      page={data.page}
+      pages={data.pages}
+      title={c.label}
+      subtitle={c.desc}
+      showFeatured
+    />
+  );
 }

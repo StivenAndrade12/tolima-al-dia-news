@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import { getNewsBySlug } from "@/lib/news.functions";
 import { categoryLabel, formatDate, toVideoEmbed } from "@/lib/news";
 import { NewsCard } from "@/components/news-card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const detailQuery = (slug: string) =>
-  queryOptions({ queryKey: ["news", "detail", slug], queryFn: () => getNewsBySlug({ data: { slug } }) });
+  queryOptions({
+    queryKey: ["news", "detail", slug],
+    queryFn: () => getNewsBySlug({ data: { slug } }),
+  });
 
 export const Route = createFileRoute("/noticia/$slug")({
   loader: async ({ context, params }) => {
@@ -17,7 +26,8 @@ export const Route = createFileRoute("/noticia/$slug")({
   },
   head: ({ loaderData }) => {
     const n = loaderData?.item;
-    if (!n) return { meta: [{ title: "Noticia no disponible" }, { name: "robots", content: "noindex" }] };
+    if (!n)
+      return { meta: [{ title: "Noticia no disponible" }, { name: "robots", content: "noindex" }] };
     const meta = [
       { title: `${n.title} — La Voz del Tolima` },
       { name: "description", content: n.excerpt },
@@ -27,7 +37,10 @@ export const Route = createFileRoute("/noticia/$slug")({
       { name: "twitter:card", content: "summary_large_image" },
     ];
     if (n.cover_url.startsWith("https://")) {
-      meta.push({ property: "og:image", content: n.cover_url }, { name: "twitter:image", content: n.cover_url });
+      meta.push(
+        { property: "og:image", content: n.cover_url },
+        { name: "twitter:image", content: n.cover_url },
+      );
     }
     return { meta };
   },
@@ -46,7 +59,9 @@ function ShareButtons({ title }: { title: string }) {
   ];
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Compartir</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Compartir
+      </span>
       {links.map((l) => (
         <a
           key={l.label}
@@ -74,11 +89,14 @@ function Article() {
         <Link to="/$category" params={{ category: n.category }} className="kicker hover:underline">
           {categoryLabel(n.category)}
         </Link>
-        <h1 className="mt-3 text-4xl font-black leading-[1.1] text-foreground md:text-5xl">{n.title}</h1>
+        <h1 className="mt-3 text-4xl font-black leading-[1.1] text-foreground md:text-5xl">
+          {n.title}
+        </h1>
         <p className="mt-5 text-lg text-muted-foreground md:text-xl">{n.excerpt}</p>
         <div className="mt-6 flex flex-col gap-4 border-y border-border py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Por <span className="font-semibold text-foreground">{n.author}</span> · {formatDate(n.published_at)}
+            Por <span className="font-semibold text-foreground">{n.author}</span> ·{" "}
+            {formatDate(n.published_at)}
           </p>
           <ShareButtons title={n.title} />
         </div>
@@ -99,7 +117,9 @@ function Article() {
             {video.kind === "file" ? (
               <video src={video.src} controls className="w-full rounded-md bg-ink" />
             ) : (
-              <div className={`overflow-hidden rounded-md bg-ink ${video.vertical ? "mx-auto aspect-[9/16] max-w-sm" : "aspect-video"}`}>
+              <div
+                className={`overflow-hidden rounded-md bg-ink ${video.vertical ? "mx-auto aspect-[9/16] max-w-sm" : "aspect-video"}`}
+              >
                 <iframe
                   src={video.src}
                   title="Video de la noticia"

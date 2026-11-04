@@ -8,8 +8,15 @@ import { CATEGORIES, categoryLabel, formatDate, type News } from "@/lib/news";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/admin/")({ component: Dashboard });
@@ -21,7 +28,10 @@ function Dashboard() {
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin-news"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("news").select("*").order("published_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .order("published_at", { ascending: false });
       if (error) throw error;
       return data as News[];
     },
@@ -33,7 +43,10 @@ function Dashboard() {
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("news").delete().eq("id", id);
-    if (error) { toast.error("No se pudo eliminar."); return; }
+    if (error) {
+      toast.error("No se pudo eliminar.");
+      return;
+    }
     toast.success("Noticia eliminada");
     qc.invalidateQueries();
   };
@@ -53,7 +66,12 @@ function Dashboard() {
       </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Input placeholder="Buscar por título…" value={q} onChange={(e) => setQ(e.target.value)} className="sm:max-w-sm" />
+        <Input
+          placeholder="Buscar por título…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="sm:max-w-sm"
+        />
         <select
           value={cat}
           onChange={(e) => setCat(e.target.value)}
@@ -61,7 +79,9 @@ function Dashboard() {
         >
           <option value="">Todas las categorías</option>
           {CATEGORIES.map((c) => (
-            <option key={c.slug} value={c.slug}>{c.label}</option>
+            <option key={c.slug} value={c.slug}>
+              {c.label}
+            </option>
           ))}
         </select>
       </div>
@@ -78,41 +98,75 @@ function Dashboard() {
           </thead>
           <tbody>
             {isLoading && (
-              <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">Cargando…</td></tr>
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-muted-foreground">
+                  Cargando…
+                </td>
+              </tr>
             )}
             {!isLoading && rows.length === 0 && (
-              <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">Sin resultados</td></tr>
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-muted-foreground">
+                  Sin resultados
+                </td>
+              </tr>
             )}
             {rows.map((n) => (
               <tr key={n.id} className="border-t border-border">
                 <td className="p-3">
                   <div className="flex items-center gap-3">
-                    <img src={n.cover_url} alt="" className="h-12 w-20 shrink-0 rounded object-cover" />
+                    {n.cover_url ? (
+                      <img
+                        src={n.cover_url}
+                        alt=""
+                        className="h-12 w-20 shrink-0 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="grid h-12 w-20 shrink-0 place-items-center rounded bg-muted text-xs font-serif font-black text-primary/40">
+                        V
+                      </div>
+                    )}
                     <span className="font-semibold">
-                      {n.featured && <Star className="mr-1 inline h-4 w-4 fill-gold text-gold" />}
+                      {n.featured && (
+                        <span title="Noticia destacada">
+                          <Star className="mr-1 inline h-4 w-4 fill-gold text-gold" />
+                        </span>
+                      )}
                       {n.title}
                     </span>
                   </div>
                 </td>
-                <td className="p-3"><span className="kicker">{categoryLabel(n.category)}</span></td>
-                <td className="whitespace-nowrap p-3 text-muted-foreground">{formatDate(n.published_at)}</td>
+                <td className="p-3">
+                  <span className="kicker">{categoryLabel(n.category)}</span>
+                </td>
+                <td className="whitespace-nowrap p-3 text-muted-foreground">
+                  {formatDate(n.published_at)}
+                </td>
                 <td className="p-3">
                   <div className="flex justify-end gap-2">
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/admin/editar/$id" params={{ id: n.id }}><Pencil /> Editar</Link>
+                      <Link to="/admin/editar/$id" params={{ id: n.id }}>
+                        <Pencil /> Editar
+                      </Link>
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive"><Trash2 /> Eliminar</Button>
+                        <Button size="sm" variant="destructive">
+                          <Trash2 /> Eliminar
+                        </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>¿Eliminar esta noticia?</AlertDialogTitle>
-                          <AlertDialogDescription>“{n.title}” se eliminará de forma permanente.</AlertDialogDescription>
+                          <AlertDialogDescription>
+                            “{n.title}” se eliminará de forma permanente.
+                          </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => remove(n.id)}>Eliminar</AlertDialogAction>
+                          <AlertDialogAction onClick={() => remove(n.id)}>
+                            Eliminar
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

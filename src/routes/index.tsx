@@ -14,9 +14,16 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "La Voz del Tolima — Noticias del Tolima, Colombia y el mundo" },
-      { name: "description", content: "Portal de noticias de la emisora institucional del Tolima: actualidad regional, nacional, internacional y deportes." },
+      {
+        name: "description",
+        content:
+          "Portal de noticias de la emisora institucional del Tolima: actualidad regional, nacional, internacional y deportes.",
+      },
       { property: "og:title", content: "La Voz del Tolima — Noticias" },
-      { property: "og:description", content: "Actualidad regional, nacional, internacional y deportes desde el Tolima." },
+      {
+        property: "og:description",
+        content: "Actualidad regional, nacional, internacional y deportes desde el Tolima.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

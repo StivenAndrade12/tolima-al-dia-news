@@ -51,10 +51,12 @@ export function NewsListing({
             <Link
               key={p}
               to="."
+              resetScroll={true}
               search={{ ...search, page: p } as never}
+              aria-current={p === page ? "page" : undefined}
               className={`grid h-10 w-10 place-items-center rounded-md border text-sm font-semibold transition ${
                 p === page
-                  ? "border-primary bg-primary text-primary-foreground"
+                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
               }`}
             >

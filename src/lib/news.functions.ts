@@ -10,7 +10,8 @@ function publicClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -21,7 +22,7 @@ function publicClient() {
 export const PAGE_SIZE = 9;
 
 export const listNews = createServerFn({ method: "GET" })
-  .inputValidator((input: { category?: string; page?: number; q?: string }) => input)
+  .validator((input: { category?: string; page?: number; q?: string }) => input)
   .handler(async ({ data }) => {
     const sb = publicClient();
     const page = Math.max(1, data.page ?? 1);
@@ -38,14 +39,23 @@ export const listNews = createServerFn({ method: "GET" })
     const from = (page - 1) * PAGE_SIZE;
     const { data: rows, count, error } = await query.range(from, from + PAGE_SIZE - 1);
     if (error) throw new Error(error.message);
-    return { items: (rows ?? []) as News[], total: count ?? 0, page, pages: Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE)) };
+    return {
+      items: (rows ?? []) as News[],
+      total: count ?? 0,
+      page,
+      pages: Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE)),
+    };
   });
 
 export const getNewsBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => input)
+  .validator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: item, error } = await sb.from("news").select("*").eq("slug", data.slug).maybeSingle();
+    const { data: item, error } = await sb
+      .from("news")
+      .select("*")
+      .eq("slug", data.slug)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!item) return { item: null, related: [] as News[] };
     const { data: related } = await sb

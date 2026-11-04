@@ -1,58 +1,61 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Radio, Search, Pause } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
-import { toast } from "sonner";
+import { Search } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { CATEGORIES } from "@/lib/news";
 
-/** Pega aquí la URL del stream de audio cuando esté disponible. */
-export const RADIO_STREAM_URL = "";
+const NAV = [
+  { slug: "", label: "Inicio" },
+  ...CATEGORIES.map((c) => ({ slug: c.slug as string, label: c.label })),
+];
 
-const NAV = [{ slug: "", label: "Inicio" }, ...CATEGORIES.map((c) => ({ slug: c.slug as string, label: c.label }))];
-
-function NavLink({ slug, className, activeProps, children }: { slug: string; className: string; activeProps?: { className: string }; children: ReactNode }) {
+function NavLink({
+  slug,
+  className,
+  activeProps,
+  children,
+}: {
+  slug: string;
+  className: string;
+  activeProps?: { className: string };
+  children: ReactNode;
+}) {
   return slug ? (
-    <Link to="/$category" params={{ category: slug }} className={className} activeProps={activeProps ?? {}}>{children}</Link>
-  ) : (
-    <Link to="/" activeOptions={{ exact: true, includeSearch: false }} className={className} activeProps={activeProps ?? {}}>{children}</Link>
-  );
-}
-
-function RadioButton() {
-  const audio = useRef<HTMLAudioElement | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const toggle = () => {
-    if (!RADIO_STREAM_URL) {
-      toast("La señal en vivo estará disponible muy pronto.");
-      return;
-    }
-    if (!audio.current) audio.current = new Audio(RADIO_STREAM_URL);
-    if (playing) audio.current.pause();
-    else void audio.current.play();
-    setPlaying(!playing);
-  };
-  return (
-    <button
-      onClick={toggle}
-      className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+    <Link
+      to="/$category"
+      params={{ category: slug }}
+      className={className}
+      activeProps={activeProps ?? {}}
     >
-      <span className="live-dot h-2 w-2 rounded-full bg-gold" />
-      {playing ? <Pause className="h-3.5 w-3.5" /> : <Radio className="h-3.5 w-3.5" />}
-      Radio en Vivo
-    </button>
+      {children}
+    </Link>
+  ) : (
+    <Link
+      to="/"
+      activeOptions={{ exact: true, includeSearch: false }}
+      className={className}
+      activeProps={activeProps ?? {}}
+    >
+      {children}
+    </Link>
   );
 }
 
 export function SiteHeader() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const today = new Date().toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const today = new Date().toLocaleDateString("es-CO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <>
       <div className="bg-ink text-ink-foreground">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-xs">
           <span className="opacity-80">{today.charAt(0).toUpperCase() + today.slice(1)}</span>
-          <RadioButton />
+          <span className="opacity-80">Ibagué, Tolima · Portal de Noticias</span>
         </div>
       </div>
       <header className="bg-card">
@@ -66,7 +69,7 @@ export function SiteHeader() {
                 La Voz del Tolima
               </span>
               <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-muted-foreground">
-                Radio institucional · Noticias
+                Información institucional · Noticias
               </span>
             </span>
           </Link>
@@ -113,7 +116,9 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-3">
         <div>
           <p className="font-serif text-2xl font-black">La Voz del Tolima</p>
-          <p className="mt-2 text-sm opacity-70">Emisora institucional al servicio de la información regional.</p>
+          <p className="mt-2 text-sm opacity-70">
+            Medio institucional al servicio de la información regional.
+          </p>
         </div>
         <div className="flex flex-col gap-2 text-sm">
           {NAV.map((n) => (

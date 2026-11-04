@@ -15,7 +15,9 @@ const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 async function uploadFile(file: File) {
   const ext = file.name.split(".").pop() ?? "bin";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+  const { error } = await supabase.storage
+    .from("media")
+    .upload(path, file, { contentType: file.type });
   if (error) throw error;
   const { data, error: e2 } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
   if (e2 || !data) throw e2 ?? new Error("No URL");
@@ -87,7 +89,20 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
   const [busy, setBusy] = useState(false);
   return (
     <div className="space-y-3">
-      {value && <img src={value} alt="" className="aspect-video w-full max-w-md rounded-md object-cover" />}
+      {value && (
+        <div className="relative inline-block w-full max-w-md">
+          <img src={value} alt="" className="aspect-video w-full rounded-md object-cover" />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="absolute right-2 top-2 rounded-full bg-ink/80 p-1.5 text-ink-foreground transition hover:bg-destructive"
+            aria-label="Quitar imagen"
+            title="Quitar imagen"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       <div className="flex flex-col gap-2 sm:flex-row">
         <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-accent">
           <Upload className="h-4 w-4" /> {busy ? "Subiendo…" : "Subir desde el equipo"}
@@ -108,7 +123,11 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
             }}
           />
         </label>
-        <Input placeholder="…o pega la URL de la imagen" value={value} onChange={(e) => onChange(e.target.value)} />
+        <Input
+          placeholder="…o pega la URL de la imagen"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
       </div>
     </div>
   );
@@ -134,9 +153,18 @@ export function NewsForm({ initial }: { initial?: News }) {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { toast.error("Escribe el título de la noticia."); return; }
-    if (!cover) { toast.error("Agrega una imagen principal."); return; }
-    if (!stripHtml(content)) { toast.error("Escribe el contenido de la noticia."); return; }
+    if (!title.trim()) {
+      toast.error("Escribe el título de la noticia.");
+      return;
+    }
+    if (!cover) {
+      toast.error("Agrega una imagen principal.");
+      return;
+    }
+    if (!stripHtml(content)) {
+      toast.error("Escribe el contenido de la noticia.");
+      return;
+    }
     setSaving(true);
     const payload = {
       title: title.trim(),
@@ -155,7 +183,10 @@ export function NewsForm({ initial }: { initial?: News }) {
           .from("news")
           .insert({ ...payload, slug: `${slugify(title)}-${Date.now().toString(36)}` });
     setSaving(false);
-    if (error) { toast.error("No se pudo guardar: " + error.message); return; }
+    if (error) {
+      toast.error("No se pudo guardar: " + error.message);
+      return;
+    }
     toast.success(initial ? "Noticia actualizada" : "¡Noticia publicada!");
     qc.invalidateQueries();
     navigate({ to: "/admin" });
@@ -167,12 +198,22 @@ export function NewsForm({ initial }: { initial?: News }) {
       <form onSubmit={save} className="mt-8 space-y-8">
         <section className="space-y-5 rounded-lg border border-border bg-card p-6">
           <div>
-            <Label htmlFor="title" className="text-base">Título de la noticia</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="mt-2 h-12 text-lg" />
+            <Label htmlFor="title" className="text-base">
+              Título de la noticia
+            </Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Escribe el título de la noticia…"
+              className="mt-2 h-12 text-lg"
+            />
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <Label htmlFor="cat" className="text-base">Categoría</Label>
+              <Label htmlFor="cat" className="text-base">
+                Categoría
+              </Label>
               <select
                 id="cat"
                 value={category}
@@ -180,32 +221,59 @@ export function NewsForm({ initial }: { initial?: News }) {
                 className="mt-2 h-12 w-full rounded-md border border-input bg-card px-3"
               >
                 {CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>{c.label}</option>
+                  <option key={c.slug} value={c.slug}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <Label htmlFor="author" className="text-base">Autor / Redactor</Label>
-              <Input id="author" value={author} onChange={(e) => setAuthor(e.target.value)} className="mt-2 h-12" />
+              <Label htmlFor="author" className="text-base">
+                Autor / Redactor
+              </Label>
+              <Input
+                id="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                className="mt-2 h-12"
+              />
             </div>
           </div>
           <label className="flex cursor-pointer items-center gap-3 rounded-md border border-gold bg-accent p-4">
-            <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="h-5 w-5 accent-primary" />
+            <input
+              type="checkbox"
+              checked={featured}
+              onChange={(e) => setFeatured(e.target.checked)}
+              className="h-5 w-5 accent-primary"
+            />
             <span>
               <span className="block font-semibold">Noticia destacada</span>
-              <span className="text-sm text-muted-foreground">Aparecerá de primera en la portada.</span>
+              <span className="text-sm text-muted-foreground">
+                Aparecerá de primera en la portada.
+              </span>
             </span>
           </label>
           <div>
-            <Label htmlFor="excerpt" className="text-base">Resumen corto</Label>
-            <Textarea id="excerpt" rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className="mt-2" placeholder="Una o dos frases que resuman la noticia (opcional)" />
+            <Label htmlFor="excerpt" className="text-base">
+              Resumen corto
+            </Label>
+            <Textarea
+              id="excerpt"
+              rows={2}
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              className="mt-2"
+              placeholder="Una o dos frases que resuman la noticia (opcional)"
+            />
           </div>
         </section>
 
         <section className="space-y-5 rounded-lg border border-border bg-card p-6">
           <div>
             <Label className="text-base">Imagen principal</Label>
-            <div className="mt-2"><ImageField value={cover} onChange={setCover} /></div>
+            <div className="mt-2">
+              <ImageField value={cover} onChange={setCover} />
+            </div>
           </div>
           <div>
             <Label className="text-base">Imágenes secundarias (galería)</Label>
@@ -243,7 +311,11 @@ export function NewsForm({ initial }: { initial?: News }) {
                   }}
                 />
               </label>
-              <Input placeholder="…o pega una URL" value={galleryUrl} onChange={(e) => setGalleryUrl(e.target.value)} />
+              <Input
+                placeholder="…o pega una URL"
+                value={galleryUrl}
+                onChange={(e) => setGalleryUrl(e.target.value)}
+              />
               <Button
                 type="button"
                 variant="outline"
@@ -257,10 +329,19 @@ export function NewsForm({ initial }: { initial?: News }) {
             </div>
           </div>
           <div>
-            <Label htmlFor="video" className="text-base">Video (opcional)</Label>
-            <p className="text-sm text-muted-foreground">Pega un enlace de YouTube, Facebook, TikTok o X, o sube un video corto.</p>
+            <Label htmlFor="video" className="text-base">
+              Video (opcional)
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Pega un enlace de YouTube, Facebook, TikTok o X, o sube un video corto.
+            </p>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-              <Input id="video" value={video} onChange={(e) => setVideo(e.target.value)} placeholder="https://www.youtube.com/watch?v=…" />
+              <Input
+                id="video"
+                value={video}
+                onChange={(e) => setVideo(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=…"
+              />
               <label className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border border-dashed border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-accent">
                 <Upload className="h-4 w-4" /> {uploadingVideo ? "Subiendo…" : "Subir video"}
                 <input
@@ -281,18 +362,31 @@ export function NewsForm({ initial }: { initial?: News }) {
                 />
               </label>
             </div>
-            {!videoOk && <p className="mt-2 text-sm text-destructive">No reconocemos este enlace de video.</p>}
-            {video && videoOk && <p className="mt-2 text-sm text-primary">✓ El video se mostrará dentro de la noticia.</p>}
+            {!videoOk && (
+              <p className="mt-2 text-sm text-destructive">No reconocemos este enlace de video.</p>
+            )}
+            {video && videoOk && (
+              <p className="mt-2 text-sm text-primary">
+                ✓ El video se mostrará dentro de la noticia.
+              </p>
+            )}
           </div>
         </section>
 
         <section className="rounded-lg border border-border bg-card p-6">
           <Label className="text-base">Contenido de la noticia</Label>
-          <div className="mt-2"><RichEditor value={content} onChange={setContent} /></div>
+          <div className="mt-2">
+            <RichEditor value={content} onChange={setContent} />
+          </div>
         </section>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" size="lg" onClick={() => navigate({ to: "/admin" })}>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => navigate({ to: "/admin" })}
+          >
             Cancelar
           </Button>
           <Button type="submit" size="lg" disabled={saving} className="h-14 px-10 text-base">

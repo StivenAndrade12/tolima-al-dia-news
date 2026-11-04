@@ -50,8 +50,7 @@ export function slugify(text: string) {
 }
 
 export type VideoEmbed =
-  | { kind: "iframe"; src: string; vertical?: boolean }
-  | { kind: "file"; src: string };
+  { kind: "iframe"; src: string; vertical?: boolean } | { kind: "file"; src: string };
 
 /** Converts a YouTube / Facebook / TikTok / X / MP4 link into an embeddable source. */
 export function toVideoEmbed(url: string | null | undefined): VideoEmbed | null {
@@ -61,8 +60,9 @@ export function toVideoEmbed(url: string | null | undefined): VideoEmbed | null 
   if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(u) || u.includes("/storage/v1/object/")) {
     return { kind: "file", src: u };
   }
-  const yt =
-    u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+  const yt = u.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i,
+  );
   if (yt) return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
   if (/facebook\.com|fb\.watch/i.test(u)) {
     return {
@@ -71,13 +71,22 @@ export function toVideoEmbed(url: string | null | undefined): VideoEmbed | null 
     };
   }
   const tt = u.match(/tiktok\.com\/.*video\/(\d+)/i);
-  if (tt) return { kind: "iframe", src: `https://www.tiktok.com/embed/v2/${tt[1]}`, vertical: true };
+  if (tt)
+    return { kind: "iframe", src: `https://www.tiktok.com/embed/v2/${tt[1]}`, vertical: true };
   const x = u.match(/(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/i);
-  if (x) return { kind: "iframe", src: `https://platform.twitter.com/embed/Tweet.html?id=${x[1]}`, vertical: true };
+  if (x)
+    return {
+      kind: "iframe",
+      src: `https://platform.twitter.com/embed/Tweet.html?id=${x[1]}`,
+      vertical: true,
+    };
   return null;
 }
 
 /** Strips HTML for plain-text excerpts. */
 export function stripHtml(html: string) {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

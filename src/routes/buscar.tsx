@@ -4,7 +4,10 @@ import { listNews } from "@/lib/news.functions";
 import { NewsListing } from "@/components/news-listing";
 
 const searchQuery = (q: string, page: number) =>
-  queryOptions({ queryKey: ["news", "search", q, page], queryFn: () => listNews({ data: { q, page } }) });
+  queryOptions({
+    queryKey: ["news", "search", q, page],
+    queryFn: () => listNews({ data: { q, page } }),
+  });
 
 export const Route = createFileRoute("/buscar")({
   validateSearch: (s: Record<string, unknown>): { q?: string; page?: number } => ({
@@ -12,7 +15,8 @@ export const Route = createFileRoute("/buscar")({
     ...(Number(s["page"]) > 0 ? { page: Number(s["page"]) } : {}),
   }),
   loaderDeps: ({ search }) => ({ q: search.q ?? "", page: search.page ?? 1 }),
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(searchQuery(deps.q, deps.page)),
+  loader: ({ context, deps }) =>
+    context.queryClient.ensureQueryData(searchQuery(deps.q, deps.page)),
   head: () => ({
     meta: [
       { title: "Buscar noticias — La Voz del Tolima" },
