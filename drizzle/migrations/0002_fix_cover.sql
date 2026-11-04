@@ -1,0 +1,1 @@
+UPDATE public.news SET cover_url = 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=80' WHERE slug = 'congreso-aprueba-reforma';
