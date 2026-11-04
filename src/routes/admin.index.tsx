@@ -33,7 +33,7 @@ function Dashboard() {
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("news").delete().eq("id", id);
-    if (error) return toast.error("No se pudo eliminar.");
+    if (error) { toast.error("No se pudo eliminar."); return; }
     toast.success("Noticia eliminada");
     qc.invalidateQueries();
   };

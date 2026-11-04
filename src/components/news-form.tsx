@@ -134,9 +134,9 @@ export function NewsForm({ initial }: { initial?: News }) {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return toast.error("Escribe el título de la noticia.");
-    if (!cover) return toast.error("Agrega una imagen principal.");
-    if (!stripHtml(content)) return toast.error("Escribe el contenido de la noticia.");
+    if (!title.trim()) { toast.error("Escribe el título de la noticia."); return; }
+    if (!cover) { toast.error("Agrega una imagen principal."); return; }
+    if (!stripHtml(content)) { toast.error("Escribe el contenido de la noticia."); return; }
     setSaving(true);
     const payload = {
       title: title.trim(),
@@ -155,7 +155,7 @@ export function NewsForm({ initial }: { initial?: News }) {
           .from("news")
           .insert({ ...payload, slug: `${slugify(title)}-${Date.now().toString(36)}` });
     setSaving(false);
-    if (error) return toast.error("No se pudo guardar: " + error.message);
+    if (error) { toast.error("No se pudo guardar: " + error.message); return; }
     toast.success(initial ? "Noticia actualizada" : "¡Noticia publicada!");
     qc.invalidateQueries();
     navigate({ to: "/admin" });

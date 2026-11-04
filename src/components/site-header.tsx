@@ -11,9 +11,9 @@ const NAV = [{ slug: "", label: "Inicio" }, ...CATEGORIES.map((c) => ({ slug: c.
 
 function NavLink({ slug, className, activeProps, children }: { slug: string; className: string; activeProps?: { className: string }; children: ReactNode }) {
   return slug ? (
-    <Link to="/$category" params={{ category: slug }} className={className} activeProps={activeProps}>{children}</Link>
+    <Link to="/$category" params={{ category: slug }} className={className} activeProps={activeProps ?? {}}>{children}</Link>
   ) : (
-    <Link to="/" activeOptions={{ exact: true, includeSearch: false }} className={className} activeProps={activeProps}>{children}</Link>
+    <Link to="/" activeOptions={{ exact: true, includeSearch: false }} className={className} activeProps={activeProps ?? {}}>{children}</Link>
   );
 }
 
