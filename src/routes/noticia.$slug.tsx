@@ -49,7 +49,7 @@ export const Route = createFileRoute("/noticia/$slug")({
         { name: "twitter:image", content: n.cover_url },
       );
     }
-    const siteUrl = import.meta.env.VITE_SITE_URL?.replace(/\\/+$/, "");
+    const siteUrl = import.meta.env.VITE_SITE_URL?.replace(/\/+$/, "");
     return {
       meta,
       links: siteUrl ? [{ rel: "canonical", href: `${siteUrl}/noticia/${n.slug}` }] : [],
