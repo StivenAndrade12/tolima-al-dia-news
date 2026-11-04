@@ -1,13 +1,21 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Radio, Search, Pause } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/news";
 
 /** Pega aquí la URL del stream de audio cuando esté disponible. */
 export const RADIO_STREAM_URL = "";
 
-const NAV = [{ to: "/", label: "Inicio" }, ...CATEGORIES.map((c) => ({ to: `/${c.slug}`, label: c.label }))];
+const NAV = [{ slug: "", label: "Inicio" }, ...CATEGORIES.map((c) => ({ slug: c.slug as string, label: c.label }))];
+
+function NavLink({ slug, className, activeProps, children }: { slug: string; className: string; activeProps?: { className: string }; children: ReactNode }) {
+  return slug ? (
+    <Link to="/$category" params={{ category: slug }} className={className} activeProps={activeProps}>{children}</Link>
+  ) : (
+    <Link to="/" activeOptions={{ exact: true, includeSearch: false }} className={className} activeProps={activeProps}>{children}</Link>
+  );
+}
 
 function RadioButton() {
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -83,15 +91,14 @@ export function SiteHeader() {
       <nav className="sticky top-0 z-40 border-y border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4">
           {NAV.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: true }}
+            <NavLink
+              key={n.slug}
+              slug={n.slug}
               className="whitespace-nowrap border-b-[3px] border-transparent px-4 py-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground transition hover:text-primary"
               activeProps={{ className: "!border-primary !text-primary" }}
             >
               {n.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
       </nav>
@@ -110,9 +117,9 @@ export function SiteFooter() {
         </div>
         <div className="flex flex-col gap-2 text-sm">
           {NAV.map((n) => (
-            <Link key={n.to} to={n.to} className="opacity-80 hover:text-gold">
+            <NavLink key={n.slug} slug={n.slug} className="opacity-80 hover:text-gold">
               {n.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
         <div className="text-sm opacity-70 md:text-right">

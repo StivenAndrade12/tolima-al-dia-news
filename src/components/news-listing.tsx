@@ -9,7 +9,6 @@ export function NewsListing({
   title,
   subtitle,
   showFeatured,
-  linkTo,
   search,
 }: {
   items: News[];
@@ -18,7 +17,6 @@ export function NewsListing({
   title?: string;
   subtitle?: string;
   showFeatured?: boolean;
-  linkTo: string;
   search?: Record<string, string>;
 }) {
   const featured = showFeatured && page === 1 ? items[0] : undefined;
@@ -52,8 +50,8 @@ export function NewsListing({
           {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
             <Link
               key={p}
-              to={linkTo}
-              search={{ ...search, page: p }}
+              to="."
+              search={{ ...search, page: p } as never}
               className={`grid h-10 w-10 place-items-center rounded-md border text-sm font-semibold transition ${
                 p === page
                   ? "border-primary bg-primary text-primary-foreground"
