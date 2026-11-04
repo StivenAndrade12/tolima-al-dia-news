@@ -11,8 +11,12 @@
 
 <!-- LOVABLE:END -->
 
-## Architecture rules
+## Architecture and security rules
 
-- Public news reads go through `src/lib/news.functions.ts` server functions (publishable client) so pages SSR with SEO; admin CRUD uses the browser client and relies on RLS `has_role(admin)`.
-- The first account that signs up becomes admin (DB trigger); later accounts get no write access unless granted in `user_roles`.
-- Uploaded media lives in the private `media` bucket and is stored in news rows as long-lived signed URLs, because public buckets are blocked in this workspace.
+- Public news reads go through `src/lib/news.functions.ts` server functions and use the Supabase publishable key.
+- Admin CRUD uses the browser Supabase client and relies on PostgreSQL RLS policies plus `has_role(admin)`; never treat a hidden route or client-side check as the security boundary.
+- The admin login is invite/provisioning-only. Do not add public sign-up or self-service role assignment.
+- The legacy first-signup-admin trigger must be removed with `drizzle/migrations/0003_disable_public_admin_signup.sql`; verify the intended administrator already exists in `public.user_roles` before applying it.
+- Uploaded media lives in the private `media` bucket and is stored in news rows as long-lived signed URLs. Do not switch it to a public bucket without reviewing the media access model.
+- Keep `.env` files out of Git. Only Supabase URL and publishable key belong in browser-visible configuration; never commit `service_role` or secret keys.
+- Sanitize article HTML with `sanitizeNewsHtml` before rendering it.
