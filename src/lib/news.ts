@@ -90,3 +90,69 @@ export function stripHtml(html: string) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+
+const ALLOWED_NEWS_TAGS = new Set([
+  "p", "br", "h2", "h3", "ul", "ol", "li", "blockquote",
+  "strong", "b", "em", "i", "u", "a",
+]);
+const VOID_NEWS_TAGS = new Set(["br"]);
+const BLOCKED_NEWS_TAGS = new Set([
+  "script", "style", "iframe", "object", "embed", "svg", "math", "template",
+]);
+
+/**
+ * Sanitize editor HTML before rendering it on public article pages.
+ * Only basic editorial formatting and safe HTTP(S) links are retained.
+ */
+export function sanitizeNewsHtml(html: string): string {
+  const tokens = html.match(/<!--[\\s\\S]*?-->|<![^>]*>|<[^>]*>|[^<]+|</g) ?? [];
+  const output: string[] = [];
+  let blockedTag: string | null = null;
+
+  for (const token of tokens) {
+    if (!token.startsWith("<") || token === "<") {
+      if (!blockedTag) output.push(token);
+      continue;
+    }
+
+    const match = token.match(/^<\\s*(\\/?)\\s*([a-zA-Z][a-zA-Z0-9-]*)\\b([^>]*)>$/);
+    if (!match) continue;
+
+    const closing = match[1] === "/";
+    const tag = match[2].toLowerCase();
+    const attributes = match[3] ?? "";
+
+    if (blockedTag) {
+      if (closing && tag === blockedTag) blockedTag = null;
+      continue;
+    }
+
+    if (BLOCKED_NEWS_TAGS.has(tag)) {
+      if (!closing && !VOID_NEWS_TAGS.has(tag)) blockedTag = tag;
+      continue;
+    }
+
+    if (!ALLOWED_NEWS_TAGS.has(tag)) continue;
+    if (closing) {
+      if (!VOID_NEWS_TAGS.has(tag)) output.push(`</${tag}>`);
+      continue;
+    }
+
+    if (tag === "a") {
+      const hrefMatch = attributes.match(/\\bhref\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/i);
+      const href = (hrefMatch?.[1] ?? hrefMatch?.[2] ?? hrefMatch?.[3] ?? "").trim();
+      if (/^https?:\\/\\//i.test(href)) {
+        const safeHref = href.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+        output.push(`<a href="${safeHref}" target="_blank" rel="noopener noreferrer">`);
+      } else {
+        output.push("<a>");
+      }
+      continue;
+    }
+
+    output.push(VOID_NEWS_TAGS.has(tag) ? `<${tag}>` : `<${tag}>`);
+  }
+
+  return output.join("");
+}
