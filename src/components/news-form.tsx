@@ -12,15 +12,45 @@ import { Textarea } from "@/components/ui/textarea";
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
-async function uploadFile(file: File) {
-  const ext = file.name.split(".").pop() ?? "bin";
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+const IMAGE_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/avif": "avif",
+};
+const VIDEO_TYPES: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/quicktime": "mov",
+};
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 45 * 1024 * 1024;
+
+async function uploadFile(file: File, kind: "image" | "video" = "image") {
+  const allowedTypes = kind === "image" ? IMAGE_TYPES : VIDEO_TYPES;
+  const maxBytes = kind === "image" ? MAX_IMAGE_BYTES : MAX_VIDEO_BYTES;
+  const extension = allowedTypes[file.type];
+  if (!extension) {
+    throw new Error(kind === "image" ? "Formato de imagen no permitido." : "Formato de video no permitido.");
+  }
+  if (file.size > maxBytes) {
+    throw new Error(
+      kind === "image"
+        ? "La imagen supera el límite de 8 MB."
+        : "El video supera el límite de 45 MB.",
+    );
+  }
+
+  const path = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
   const { error } = await supabase.storage
     .from("media")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, file, { contentType: file.type, upsert: false });
   if (error) throw error;
-  const { data, error: e2 } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
-  if (e2 || !data) throw e2 ?? new Error("No URL");
+  const { data, error: signedUrlError } = await supabase.storage
+    .from("media")
+    .createSignedUrl(path, TEN_YEARS);
+  if (signedUrlError || !data) throw signedUrlError ?? new Error("No se pudo generar el enlace.");
   return data.signedUrl;
 }
 
@@ -115,7 +145,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (url: string
               if (!f) return;
               setBusy(true);
               try {
-                onChange(await uploadFile(f));
+                onChange(await uploadFile(f, "image"));
               } catch {
                 toast.error("No se pudo subir la imagen.");
               }
@@ -303,7 +333,7 @@ export function NewsForm({ initial }: { initial?: News }) {
                   onChange={async (e) => {
                     const files = Array.from(e.target.files ?? []);
                     try {
-                      const urls = await Promise.all(files.map(uploadFile));
+                      const urls = await Promise.all(files.map((file) => uploadFile(file, "image")));
                       setGallery((g) => [...g, ...urls]);
                     } catch {
                       toast.error("No se pudo subir alguna imagen.");
@@ -353,9 +383,9 @@ export function NewsForm({ initial }: { initial?: News }) {
                     if (!f) return;
                     setUploadingVideo(true);
                     try {
-                      setVideo(await uploadFile(f));
+                      setVideo(await uploadFile(f, "video"));
                     } catch {
-                      toast.error("No se pudo subir el video (máx. 50 MB).");
+                      toast.error("No se pudo subir el video. Verifica el formato y que pese máximo 45 MB.");
                     }
                     setUploadingVideo(false);
                   }}
