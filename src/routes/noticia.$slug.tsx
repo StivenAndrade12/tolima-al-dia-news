@@ -32,10 +32,16 @@ export const Route = createFileRoute("/noticia/$slug")({
     const meta = [
       { title: `${n.title} — La Voz del Tolima` },
       { name: "description", content: n.excerpt },
+      { name: "author", content: n.author },
+      { property: "og:site_name", content: "La Voz del Tolima" },
       { property: "og:title", content: n.title },
       { property: "og:description", content: n.excerpt },
       { property: "og:type", content: "article" },
+      { property: "article:published_time", content: n.published_at },
+      { property: "article:author", content: n.author },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: n.title },
+      { name: "twitter:description", content: n.excerpt },
     ];
     if (n.cover_url.startsWith("https://")) {
       meta.push(
@@ -43,7 +49,11 @@ export const Route = createFileRoute("/noticia/$slug")({
         { name: "twitter:image", content: n.cover_url },
       );
     }
-    return { meta };
+    const siteUrl = import.meta.env.VITE_SITE_URL?.replace(/\\/+$/, "");
+    return {
+      meta,
+      links: siteUrl ? [{ rel: "canonical", href: `${siteUrl}/noticia/${n.slug}` }] : [],
+    };
   },
   component: Article,
 });
@@ -105,7 +115,7 @@ function Article() {
 
       {n.cover_url && (
         <figure className="mx-auto mt-8 max-w-5xl overflow-hidden rounded-md">
-          <img src={n.cover_url} alt={n.title} className="aspect-video w-full object-cover" />
+          <img src={n.cover_url} alt={n.title} decoding="async" className="aspect-video w-full object-cover" />
         </figure>
       )}
 
@@ -140,7 +150,7 @@ function Article() {
               <CarouselContent>
                 {n.gallery.map((src) => (
                   <CarouselItem key={src}>
-                    <img src={src} alt="" className="aspect-video w-full rounded-md object-cover" />
+                    <img src={src} alt="" loading="lazy" decoding="async" className="aspect-video w-full rounded-md object-cover" />
                   </CarouselItem>
                 ))}
               </CarouselContent>
