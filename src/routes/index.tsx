@@ -1,23 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { listNews } from "@/lib/news.functions";
+import { NewsListing } from "@/components/news-listing";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const homeQuery = (page: number) =>
+  queryOptions({ queryKey: ["news", "home", page], queryFn: () => listNews({ data: { page } }) });
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  validateSearch: (s: Record<string, unknown>) => ({ page: Number(s.page) > 0 ? Number(s.page) : undefined }),
+  loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
+  loader: ({ context, deps }) => context.queryClient.ensureQueryData(homeQuery(deps.page)),
+  head: () => ({
+    meta: [
+      { title: "La Voz del Tolima — Noticias del Tolima, Colombia y el mundo" },
+      { name: "description", content: "Portal de noticias de la emisora institucional del Tolima: actualidad regional, nacional, internacional y deportes." },
+      { property: "og:title", content: "La Voz del Tolima — Noticias" },
+      { property: "og:description", content: "Actualidad regional, nacional, internacional y deportes desde el Tolima." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+function Home() {
+  const { page } = Route.useLoaderDeps();
+  const { data } = useSuspenseQuery(homeQuery(page));
+  return <NewsListing items={data.items} page={data.page} pages={data.pages} showFeatured />;
 }
