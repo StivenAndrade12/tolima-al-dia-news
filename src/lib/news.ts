@@ -57,8 +57,17 @@ export function toVideoEmbed(url: string | null | undefined): VideoEmbed | null 
   if (!url) return null;
   const u = url.trim();
   if (!u) return null;
-  if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(u) || u.includes("/storage/v1/object/")) {
-    return { kind: "file", src: u };
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(u);
+  } catch {
+    return null;
+  }
+  if (parsedUrl.protocol !== "https:") return null;
+
+  if (/\.(mp4|webm|mov|ogg)$/i.test(parsedUrl.pathname) || parsedUrl.pathname.includes("/storage/v1/object/")) {
+    return { kind: "file", src: parsedUrl.toString() };
   }
   const yt = u.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i,
