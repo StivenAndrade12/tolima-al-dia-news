@@ -7,7 +7,8 @@ const homeQuery = (page: number) =>
   queryOptions({ queryKey: ["news", "home", page], queryFn: () => listNews({ data: { page } }) });
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>) => ({ page: Number(s.page) > 0 ? Number(s.page) : undefined }),
+  validateSearch: (s: Record<string, unknown>): { page?: number } =>
+    Number(s["page"]) > 0 ? { page: Number(s["page"]) } : {},
   loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(homeQuery(deps.page)),
   head: () => ({

@@ -11,7 +11,8 @@ const catQuery = (category: string, page: number) =>
   });
 
 export const Route = createFileRoute("/$category")({
-  validateSearch: (s: Record<string, unknown>) => ({ page: Number(s.page) > 0 ? Number(s.page) : undefined }),
+  validateSearch: (s: Record<string, unknown>): { page?: number } =>
+    Number(s["page"]) > 0 ? { page: Number(s["page"]) } : {},
   loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
   loader: ({ context, params, deps }) => {
     if (!isCategory(params.category)) throw notFound();

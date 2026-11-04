@@ -7,11 +7,11 @@ const searchQuery = (q: string, page: number) =>
   queryOptions({ queryKey: ["news", "search", q, page], queryFn: () => listNews({ data: { q, page } }) });
 
 export const Route = createFileRoute("/buscar")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    q: typeof s.q === "string" ? s.q : "",
-    page: Number(s.page) > 0 ? Number(s.page) : undefined,
+  validateSearch: (s: Record<string, unknown>): { q?: string; page?: number } => ({
+    q: typeof s["q"] === "string" ? s["q"] : "",
+    ...(Number(s["page"]) > 0 ? { page: Number(s["page"]) } : {}),
   }),
-  loaderDeps: ({ search }) => ({ q: search.q, page: search.page ?? 1 }),
+  loaderDeps: ({ search }) => ({ q: search.q ?? "", page: search.page ?? 1 }),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(searchQuery(deps.q, deps.page)),
   head: () => ({
     meta: [

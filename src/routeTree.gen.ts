@@ -11,8 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategoryRouteImport } from './routes/$category'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BuscarRouteImport } from './routes/buscar'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminNuevaRouteImport } from './routes/admin.nueva'
 import { Route as NoticiaSlugRouteImport } from './routes/noticia.$slug'
+import { Route as AdminEditarIdRouteImport } from './routes/admin.editar.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -24,47 +28,103 @@ const CategoryRoute = CategoryRouteImport.update({
   path: '/$category',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuscarRoute = BuscarRouteImport.update({
   id: '/buscar',
   path: '/buscar',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNuevaRoute = AdminNuevaRouteImport.update({
+  id: '/nueva',
+  path: '/nueva',
+  getParentRoute: () => AdminRoute,
 } as any)
 const NoticiaSlugRoute = NoticiaSlugRouteImport.update({
   id: '/noticia/$slug',
   path: '/noticia/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEditarIdRoute = AdminEditarIdRouteImport.update({
+  id: '/editar/$id',
+  path: '/editar/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$category': typeof CategoryRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buscar': typeof BuscarRoute
+  '/admin/nueva': typeof AdminNuevaRoute
   '/noticia/$slug': typeof NoticiaSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/editar/$id': typeof AdminEditarIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$category': typeof CategoryRoute
   '/buscar': typeof BuscarRoute
+  '/admin/nueva': typeof AdminNuevaRoute
   '/noticia/$slug': typeof NoticiaSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/editar/$id': typeof AdminEditarIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$category': typeof CategoryRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buscar': typeof BuscarRoute
+  '/admin/nueva': typeof AdminNuevaRoute
   '/noticia/$slug': typeof NoticiaSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/editar/$id': typeof AdminEditarIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$category' | '/buscar' | '/noticia/$slug'
+  fullPaths:
+    | '/'
+    | '/$category'
+    | '/admin'
+    | '/buscar'
+    | '/admin/nueva'
+    | '/noticia/$slug'
+    | '/admin/'
+    | '/admin/editar/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$category' | '/buscar' | '/noticia/$slug'
-  id: '__root__' | '/' | '/$category' | '/buscar' | '/noticia/$slug'
+  to:
+    | '/'
+    | '/$category'
+    | '/buscar'
+    | '/admin/nueva'
+    | '/noticia/$slug'
+    | '/admin'
+    | '/admin/editar/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/$category'
+    | '/admin'
+    | '/buscar'
+    | '/admin/nueva'
+    | '/noticia/$slug'
+    | '/admin/'
+    | '/admin/editar/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoryRoute: typeof CategoryRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BuscarRoute: typeof BuscarRoute
   NoticiaSlugRoute: typeof NoticiaSlugRoute
 }
@@ -85,12 +145,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/buscar': {
       id: '/buscar'
       path: '/buscar'
       fullPath: '/buscar'
       preLoaderRoute: typeof BuscarRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/nueva': {
+      id: '/admin/nueva'
+      path: '/nueva'
+      fullPath: '/admin/nueva'
+      preLoaderRoute: typeof AdminNuevaRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/noticia/$slug': {
       id: '/noticia/$slug'
@@ -99,12 +180,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NoticiaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/editar/$id': {
+      id: '/admin/editar/$id'
+      path: '/editar/$id'
+      fullPath: '/admin/editar/$id'
+      preLoaderRoute: typeof AdminEditarIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminNuevaRoute: typeof AdminNuevaRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminEditarIdRoute: typeof AdminEditarIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminNuevaRoute: AdminNuevaRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminEditarIdRoute: AdminEditarIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoryRoute: CategoryRoute,
+  AdminRoute: AdminRouteWithChildren,
   BuscarRoute: BuscarRoute,
   NoticiaSlugRoute: NoticiaSlugRoute,
 }
